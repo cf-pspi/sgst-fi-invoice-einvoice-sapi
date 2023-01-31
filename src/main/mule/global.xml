@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b533b56e-4b2e-4990-b888-565f3fc0f2fe" >
+		<http:listener-connection host="${http.host}" port="${http.port}" readTimeout="300000" protocol="HTTPS" tlsContext="TLS_Context">
+		</http:listener-connection>
+	</http:listener-config>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="94c897b3-1da8-4b2a-873d-029f41013fe9" environment="dev" applicationName="sample-json-logger" applicationVersion="1.0"/>
+	<http:request-config name="HTTP_Einvoice_Request_configuration" doc:name="HTTP Request configuration" doc:id="79a9dcb2-c4fe-46e8-b532-1b1a4794a08b" >
+		<http:request-connection host="${einvoice.host}" protocol="HTTPS">
+			<http:authentication >
+				<http:basic-authentication username="${einvoice.username}" password="${einvoice.password}" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+		<configuration-properties doc:name="Configuration properties" doc:id="ea9278ff-3742-4b36-a993-2aba8c976d57" file="properties\local.yaml" />
+	<tls:context name="TLS_Context" doc:name="TLS Context" doc:id="8150610b-ecfa-4474-bb57-4216370b095d" ><tls:key-store type="jks" path="sitkeystore.jks" alias="servercert" keyPassword="winter@123" password="winter@123" /></tls:context>
+	<error-handler name="global-exception-strategy" doc:id="602e5f17-ea9c-4833-a2b2-6c94825d4286" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="71ff806d-a07b-4a03-8317-37a4240a55fd" type="APIKIT:BAD_REQUEST">
+			<ee:transform doc:name="Transform Message" doc:id="261381e0-46b1-42e2-9e0d-e8d924c67500">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorBadRequest.dwl" />
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0005a675-355f-445f-9564-caf15fd72788" type="APIKIT:NOT_FOUND,HTTP:NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="de4324fd-00e4-4d38-9019-60748bc49ad9" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotFound.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5f4de758-6bab-4d24-9f1d-de4f71ccf10f" type="APIKIT:METHOD_NOT_ALLOWED">
+			<ee:transform doc:name="Transform Message" doc:id="8728f712-ac81-4fb5-b0a6-535bd3cac401" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorMethodNotAllowed.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[405]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a57ec49f-4599-4807-aca7-0aff0310b105" type="APIKIT:NOT_ACCEPTABLE">
+			<ee:transform doc:name="Transform Message" doc:id="eb0bbded-404c-49e9-948b-271c92dd1170" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotAcceptable.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[406]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5f53a3bd-4dc2-4bdf-8e34-9f6513c89a25" type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<ee:transform doc:name="Transform Message" doc:id="4fd1fc83-078f-4c9e-b0bc-f1f82ac3bfcb" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorUnsupportedMediaType.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[415]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="349971dd-cff7-4954-a824-c730cdb603eb" type="APIKIT:NOT_IMPLEMENTED">
+			<ee:transform doc:name="Transform Message" doc:id="05e3e268-5ea1-49f2-a86c-33d0560fab6f" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotImplemented.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[501]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b1009c7e-958a-49b7-b237-de7559380833" type="MULE:EXPRESSION">
+			<ee:transform doc:name="Transform Message" doc:id="8c20778a-e6a7-4f5e-823b-095e6e27810f" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorExpression.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="83e475b4-5b90-4064-9576-1cc56f7baa47" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="d8dc808a-9444-444e-a36f-2fa5263b0b3e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "errorCode": 500,
+  "errorMessage": "Unknown Error",
+  "correlationID": vars.correlationID,
+  "timestamp": (now() as String{format:'yyyy-MM-dd-hh-mm-ss'})
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+    	
+</mule>

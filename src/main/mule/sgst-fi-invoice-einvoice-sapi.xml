@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+    <apikit:config name="sgst-fi-invoice-einvoice-sapi-config" api="sgst-fi-invoice-einvoice-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="sgst-fi-invoice-einvoice-sapi-main" doc:id="dcc7d2e5-5dee-4f8f-9541-b12639862780">
+        <http:listener config-ref="HTTP_Listener_config" path="${http.path}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-variable value="#[read(attributes.headers.correlationID,'application/json')]" doc:name="Set correlationId" doc:id="05b57602-82f2-419d-93e5-1bb26090ef2f" variableName="correlationID" />
+        <apikit:router config-ref="sgst-fi-invoice-einvoice-sapi-config" doc:id="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" />
+        <error-handler ref="global-exception-strategy" />
+    </flow>
+    <flow name="post:\invoice:application\json:sgst-fi-invoice-einvoice-sapi-config" doc:id="9c889b89-8761-4e5b-8ada-1028c03082c9">
+		<ee:transform doc:name="Transform Message" doc:id="d44052c7-3642-45c4-9a8f-e281b6bb00ec" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="jsonLogger" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+     "flowDirection": "out",
+     "source": "SAP",
+     "destination":  'einvoice rest api',
+     "errorCode": "",
+     "errorMessage": "",
+     "ApiName": "sgst-fi-invoice-einvoice-sapi",
+     "Action": "INIT",
+     "status": "Initiated a call to einvoice API"
+     }]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Entry Logger" doc:id="50b9bd68-fdff-4619-9fb8-70280b6ce6bf" config-ref="JSON_Logger_Config" message="START : Received API request." >
+			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.jsonLogger) 
+}]]]></json-logger:content>
+		</json-logger:logger>
+        <http:request method="POST" doc:name="Einvoice Request " doc:id="3e05f797-11a3-428b-9c91-8c04a158a6df" config-ref="HTTP_Einvoice_Request_configuration" path="${einvoice.path}" />
+        <ee:transform doc:name="Final Response" doc:id="046f4acf-ed73-4d10-9ac0-00038cd3a251">
+            <ee:message>
+				<ee:set-payload resource="dwl/finalResponse.dwl" />
+            </ee:message>
+        </ee:transform>
+        <json-logger:logger doc:name="Exit Logger" doc:id="72241dd1-510e-4b30-8807-322725432eea" config-ref="JSON_Logger_Config" message="END : Received API request." tracePoint="END" >
+			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.jsonLogger) 
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<error-handler ref="global-exception-strategy" />
+    </flow>
+</mule>

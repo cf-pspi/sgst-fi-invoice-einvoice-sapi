@@ -1,0 +1,37 @@
+#
+mule:
+  env: local
+
+# Listener Configurations
+http:
+ path : "api/*"
+ host : "localhost"
+ port : "8082"
+ timeout : "30000"
+
+#Json-logger
+json:
+  logger:
+    application:
+      version: '1.0'
+      name: sample-json-logger
+    env: dev
+
+
+#einvoice rest api
+einvoice:
+ host : "api-uat.einvoice.fpt.com.vn"
+ path : "/TRAN_TYPE"
+ username : "0101382443-001.api"
+ password : "admin@123456"
+ 
+ 
+
+  
+#HTTP Listener Certificate Configuration
+tls:
+  keystore:
+   jksPath: 'mykestore.jks'
+   jksAlias: 'servercert'
+   jksKey: '![jZ9aFIvsIbzo/rVxKqDOdQ==]'
+   jksPassword: '![jZ9aFIvsIbzo/rVxKqDOdQ==]'

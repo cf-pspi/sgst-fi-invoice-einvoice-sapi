@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="sgst-common-pcs-backup-utility-test-suite.xml" />
+	<munit:test name="sgst-fi-invoice-sap-sapi-Bad-Request" doc:id="aec66e91-e422-4621-aea7-9995d157de89">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5bcaa57d-4d09-4b36-b3f8-a065aa2959d2" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="d9b6320e-3cea-4786-98aa-dfee39cdf52c" >
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="a696835d-7e37-46ee-a528-704ccce331f5" >
+				<flow-ref doc:name="Flow Reference" doc:id="fd78af87-07fc-4b09-b34b-154694d1899d" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5002a785-fec2-4b9c-8127-a5494f98f357" >
+						<logger level="INFO" doc:name="Logger" doc:id="69ff7f95-87e4-4295-b05c-86be72c59dbc" message="APIKIT:BAD_REQUEST"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="be619347-c15e-4602-85a7-6b90e4bfddd2" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-utility-not-found" doc:id="091b22e2-496b-4966-ba90-70648ddb4af9">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="def41b57-011d-4dca-badb-ed0ee97e1bdc" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="146dbaab-e98f-4e8b-9aec-c500c8b17907">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="aa9ed906-acfc-42c3-aecb-228de58d1dc5" >
+				<flow-ref doc:name="Flow Reference" doc:id="3991ef00-9e64-4493-a94c-497cd338da23" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d0e05f97-ba78-4b4d-9827-a7ab32b8d849" >
+						<logger level="INFO" doc:name="Logger" doc:id="ba7858c8-7c41-4ec6-b6b3-877789425c49" message="APIKIT:NOT_FOUND"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="0bf2d1d1-e61d-444c-8cdb-fc06a32e3071" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-method-not-allowed" doc:id="3f42d9a6-49fa-4597-853e-0f9e7d003e2e">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b5581402-dc06-4fe7-bb47-053ed155e570" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="2030693a-b77e-4d59-8b4c-00861d67b831">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="31e875bf-8144-4505-b014-5f34b7547e18" >
+				<flow-ref doc:name="Flow Reference" doc:id="d1c9a1b7-e4c7-4797-8020-b952e05dc276" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="47b78d14-f2e2-48fb-a6fd-f00bc6e0bf62" >
+						<logger level="INFO" doc:name="Logger" doc:id="5f030d52-f710-4b99-b8d8-2a429057a7fe" message="APIKIT:METHOD_NOT_ALLOWED"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="01b140c9-840e-40a5-b692-5132e4c13184" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-utility-not-acceptable" doc:id="caa230fb-d1c7-41af-b2b0-693c1b7e67d3">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a972d9e8-bc47-4a89-a3de-af2c2e027411" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="03c2f714-b1aa-422a-9955-82deda35703f">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="5d386ea3-c045-4454-a4a2-71c458a8d9f5" >
+				<flow-ref doc:name="Flow Reference" doc:id="96076115-4c02-40c0-980b-7bda440d2124" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fc8928fb-1bfc-425e-ae4b-eeddd1bd115e" >
+						<logger level="INFO" doc:name="Logger" doc:id="455c61f4-dc29-475f-b9da-3845e1333b81" message="APIKIT:NOT_ACCEPTABLE"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c5a0ea58-ab24-4634-859b-740ea078dcdc" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-unsupport-media-type" doc:id="81ea62e0-daac-4e8b-9cad-b7cd3d250791">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="f80224b7-8e16-4fe3-a272-b19936738194" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="13ad9103-2cbc-4d38-9452-2747c95693db">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="79ce16aa-7b54-4c00-b3bd-650fd1f8b3cb" >
+				<flow-ref doc:name="Flow Reference" doc:id="5240a3bd-5982-4943-a02d-935ffc5eb84b" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="eac29483-9170-42db-b465-c690192e84c2" >
+						<logger level="INFO" doc:name="Logger" doc:id="45300043-5b23-4403-9193-2be3e79b2a7d" message="APIKIT:UNSUPPORTED_MEDIA_TYPE"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="25f47155-304e-4c23-871f-a6b1fa26245f" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-not-implemented" doc:id="97b11d8d-7902-431d-9f80-075402e57c36">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="524feeb7-c5a8-4879-96ad-0b63355dce30" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="d0076345-0856-4000-bef8-162e650f3648">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="c6d6d38d-97da-4cca-af0a-0e8c6e6440eb" >
+				<flow-ref doc:name="Flow Reference" doc:id="40efd50c-b834-40e2-967d-d38531ad0313" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="10407e8e-143b-4df1-963b-870ae35d247e" >
+						<logger level="INFO" doc:name="Logger" doc:id="8f282f36-74b0-492f-9e99-c71ee073b53b" message="APIKIT:NOT_IMPLEMENTED"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="fe240b02-670b-4a0f-9a67-9352f2594562" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="sgst-fi-invoice-sap-sapi-expression-error" doc:id="07237b2e-e81b-4d29-bb1e-7080643e7b92">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6a819ed4-4d24-4bdb-8a27-cbbb004d9312" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MULE:EXPRESSION" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="0008bd1f-41ea-445a-9a2a-e9a785a823d1">
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="19b7199e-ab0d-497b-a0de-40081ac597f3" >
+				<flow-ref doc:name="Flow Reference" doc:id="02a05b49-7ac0-4b78-a43a-1e95e0d496f6" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="073cc8f1-6a72-41a2-92ef-463f76f94136" >
+						<logger level="INFO" doc:name="Logger" doc:id="f2da3f9f-547d-464a-9fd2-4b74315af4e1" message="MULE:EXPRESSION"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="f886c83c-fac2-4944-b431-673b71938726" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="sgst-fi-invoice-sap-sapi-any" doc:id="de147062-e967-4037-9ec5-b37c27a59188">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="71eab2a3-61c9-4906-8457-0f22e610bee5" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="d80d4493-34d6-49f6-ac49-8ebfd53bc87d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="21e65699-3e02-47a7-a4fe-71fab439a4a0" >
+				<munit:attributes value="#[{&#10;        headers : {'correlationID': '112233'}&#10;    }]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="ca3eb374-c127-4546-804e-48d33ea8ccd0" >
+				<flow-ref doc:name="Flow Reference" doc:id="bf85aac2-d3b8-4f4f-97f8-ec288be7acdf" name="sgst-fi-invoice-einvoice-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e8ce95da-7292-4c86-8f49-40d45a71ee44" >
+						<logger level="INFO" doc:name="Logger" doc:id="b922e299-f41f-4b6b-95e3-a22c100d82eb" message="ANY" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="cd3fd20d-8e20-4564-a059-76b2743be753" expression="#[payload.errorCode]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+</mule>
