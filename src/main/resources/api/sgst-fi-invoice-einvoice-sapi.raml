@@ -4,28 +4,56 @@ version: 1.0
 description: System API to publish the invoice to external system.
 
 uses:
-  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.6/datatypes-library.raml
-  traitsLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/traits-library/1.0.3/traits-library.raml
+  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.36/datatypes-library.raml
+  traitsLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/traits-library/1.0.35/traits-library.raml
   resourceTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/resource-types-library/1.0.2/library-resource-types.raml
   securitySchemesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/security-schemes-library/1.0.0/library-security-schemes.raml
 
 #securedBy: [securitySchemesLib.basicAuth]
 
-/invoice:
+/create-invoice:
   post:
     is: 
       - traitsLib.hasCorrelationID
+      - traitsLib.hasResponses
     body:
       application/json:
         type: dataTypesLib.InvoiceBody
     responses:
       200:
-        body:
+        body: 
           application/json:
             type: dataTypesLib.SuccessResponseInvoice
-      400:
-        body:
+/cancel-invoice:
+  get:
+    is: 
+      - traitsLib.hasCorrelationID
+      - traitsLib.hasResponses
+    queryParameters:
+      sid:
+        type: string
+        required: true
+    responses:
+      200:
+        body: 
           application/json:
-            type:  dataTypesLib.ErrorResponse
+            type: dataTypesLib.CancleResponseInvoice
+      
+/delete-invoice:
+  delete:
+    is: 
+      - traitsLib.hasCorrelationID
+      - traitsLib.hasResponses
+    queryParameters:
+      sid:
+        type: string
+        required: true
+    responses:
+      200:
+        body: 
+          application/json:
+            type: dataTypesLib.DeleteResponseInvoice
+
+
 
     

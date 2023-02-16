@@ -1,0 +1,117 @@
+#%RAML 1.0 DataType
+type: object
+displayName: einvoice information in json format
+properties:
+  sid:
+    type: string
+    example:  ca09f-0ce2-4240-9e5b-958778618fea
+  idt:
+    type: string
+    example: 2023-01-01 00:00
+  type:
+    type: string
+    example: 01GTKT
+  form:
+    type: string
+    example: "1"
+  serial:
+    type: string
+    example: C23TCE
+  seq:
+    type: string
+    example: ""
+  aun:
+    type: number
+    example: 2
+  bcode:
+    type: string
+    example: BENTESSGN
+  bname:
+    type: string
+    example: BEN'S TEST REGISTRATION
+  buyer:
+    type: string
+    example: ""
+  btax:
+    type: string
+    example: "0313935315"
+  baddr:
+    type: string
+    example: 1 HA LONG BAY, HOI AN, 12, Viet Nam
+  btel:
+    type: string
+    example: ""
+  bmail:
+    type: string
+    example: ""
+  sendfile:
+    type: number
+    example: 1
+  paym:
+    type: string
+    example: TM\/CK
+  curr:
+    type: string
+    example: VND
+  exrt:
+    type: number
+    example: 1.00
+  bacc:
+    type: string
+    example: ""
+  bbank:
+    type: string
+    example: ""
+  note:
+    type: string
+    example: AR INVOICE
+  sumv:
+    type: number
+    example: 45678.0000
+  sum:
+    type: number
+    example: 45678.0000
+  vatv:
+    type: number
+    example: 3654.0000
+  vat:
+    type: number
+    example: 3654
+  word:
+    type: string
+    example: Bốn mươi chín nghìn ba trăm ba mươi hai dong
+  totalv:
+    type: number
+    example: 49332.0000
+  discount:
+    type: string
+    example: ""
+  total:
+    type: number
+    example: 49332.0000
+  type_ref:
+    type: number
+    example: 1
+  sendtype:
+    type: number
+    example: 1
+  stax:
+    type: string
+    example: "01013824438"
+  c0:
+    type: string
+    example: 16-Dec-22
+  items: !include dataType-einvoice-array.raml
+
+
+
+
+
+
+
+
+
+
+
+
+

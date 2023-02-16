@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+	
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="c902efaa-cd84-4abf-bc05-43894232db99" environment="${json.logger.env}"/>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="12f8bbb0-8515-4ae1-8941-0a9311f23220" file="properties/${env}.yaml" key="${secure.key}" />
+	<global-property doc:name="Global Property" doc:id="36f5864a-6018-4379-acef-88f207e88d46" name="env" value="sit" />
+	<global-property doc:name="Global Property" doc:id="85ee92ac-cb35-49e3-adb2-ff650c123dc3" name="secure.key" value="PanasonicDev2022" />
+	
+	<http:listener-config name="sgst-fi-invoice-einvoice-sapi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" tlsContext="TLS_Context" protocol="HTTPS"/>
+    </http:listener-config>
+    <apikit:config name="sgst-fi-invoice-einvoice-sapi-config" api="sgst-fi-invoice-einvoice-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<configuration-properties doc:name="Configuration properties" doc:id="d445d659-f52c-4ffa-a189-13f9a10b9c08" file="properties\common.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="84fcda14-39b4-4523-9129-6ac2c965b750" file="properties/${env}.yaml" />
+	<tls:context name="TLS_Context" doc:name="TLS Context" doc:id="217c1caa-7612-4d1d-a80b-599504be6e79" >
+		<tls:trust-store insecure="true" />
+		<tls:key-store type="jks" path="mykeystore.jks" alias="servercert" keyPassword="winter@123" password="winter@123" />
+	</tls:context>
+	<http:request-config name="HTTP_Request_Einvoice" doc:name="HTTP Request configuration" doc:id="0606010e-0aaa-4cd6-9ecf-bc26d10e01e6" >
+		<http:request-connection protocol="HTTPS" host="api-uat.einvoice.fpt.com.vn" />
+	</http:request-config>
+	<error-handler name="global-exception-strategy" doc:id="8deac547-b233-440f-891b-b484ba7b5256" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="de2addbd-1280-4815-be8c-1a3d18041e55" type="APIKIT:BAD_REQUEST,HTTP:BAD_REQUEST">
+			<ee:transform doc:name="Transform Message" doc:id="e487ba9c-e9f1-48a1-8e60-5af8886cadec">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorBadRequest.dwl" />
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="1574c850-218e-4a8b-89f4-bc7713a18e43" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="dac1665a-1ca2-4254-b483-e5fab0623247" type="APIKIT:NOT_FOUND,HTTP:NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="44777d15-d375-4eae-9706-48914df5b744" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotFound.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="1a4cf23c-f263-49ec-970f-3586bf31b683" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="36a6a101-e49e-4127-ab71-09c55632c91e" type="APIKIT:METHOD_NOT_ALLOWED">
+			<ee:transform doc:name="Transform Message" doc:id="e1c71585-48e1-43c0-87c6-fa65d041219e" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorMethodNotAllowed.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[405]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="666a3282-c4bd-40d4-99ca-76453586a479" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="25a4772c-6664-47e4-83b0-b7c3c1201e32" type="APIKIT:NOT_ACCEPTABLE">
+			<ee:transform doc:name="Transform Message" doc:id="482be9f9-b000-4efd-a251-9efe3cce3e5f" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotAcceptable.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[406]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="6b083a4f-f422-4d3f-b299-d82c7ab16504" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="63a9adb7-975e-47a8-bfee-3e8c22b51c48" type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<ee:transform doc:name="Transform Message" doc:id="8c21f159-1250-47fc-ab54-16042ace7337" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorUnsupportedMediaType.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[415]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="f0aa32c5-a6f0-4eba-b27c-665572fc0acc" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a68b6ebc-e2f7-4763-8d2f-9e1fba1e9702" type="APIKIT:NOT_IMPLEMENTED">
+			<ee:transform doc:name="Transform Message" doc:id="1faad085-b3cd-4c8f-964c-4fea34847189" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorNotImplemented.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[501]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="d74ad906-ae4f-482f-8bf3-0379d748a626" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a955a938-c103-4611-a4d3-f9fa2d4dc00c" type="MULE:EXPRESSION,HTTP:INTERNAL_SERVER_ERROR">
+			<ee:transform doc:name="Transform Message" doc:id="b773176b-290f-4b3f-a5c0-826c26a75901" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorExpression.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="e7fbd50e-d046-49d8-b8b7-09007f6bcb15" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c19d9eff-37ae-4b15-9501-70994cfb528c" type="HTTP:UNAUTHORIZED">
+			<ee:transform doc:name="Transform Message" doc:id="ac9fe746-4b17-488f-a295-cec42786aefa" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorExpression.dwl" />
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="3207c1a4-2d08-4830-b39d-2281962b49d4" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7433f9cf-f51b-44d3-b35f-91384c47a373" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="d4287334-d85e-4c85-891b-21ead5d43a30" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "errorCode": 500,
+  "errorMessage": "Unknown Error",
+  "correlationID": vars.correlationID,
+  "timestamp": (now() as String{format:'yyyy-MM-dd-hh-mm-ss'})
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="8997c99e-b6d1-4c3f-ac01-f0f6259f10b0" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
+		
+</on-error-propagate>
+	</error-handler>
+</mule>

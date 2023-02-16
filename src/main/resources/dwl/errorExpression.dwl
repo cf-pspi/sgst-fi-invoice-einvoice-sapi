@@ -2,9 +2,9 @@
 output application/json
 ---
 {
-  "errorCode": 500,
-  "errorMessage": "Mule Expression Error",
-  "errorType": "EXPRESSION",
+  "errorCode": 401,
+  "errorMessage": "UNAUTHORIZED Error",
+  "errorType": "UNAUTHORIZED",
   "correlationID": vars.correlationID,
   "timestamp": (now() as String{format:'yyyy-MM-dd-hh-mm-ss'})
 }
