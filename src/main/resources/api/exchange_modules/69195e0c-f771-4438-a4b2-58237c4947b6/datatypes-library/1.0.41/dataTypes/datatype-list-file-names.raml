@@ -1,0 +1,12 @@
+#%RAML 1.0 DataType
+properties:
+      fileNames:
+        type: array
+        items: string
+        description: The List of File Names matching the Pattern to push to the SAP
+        example:
+          ["PH34_34P1_Finallist.csv","PH34_34P2_Finallist.csv"]
+      correlationID:
+        description: The Correlation ID of the request
+        type: string
+        example: "28393680-805f-11ed-a40a-00059a3c7a00"

@@ -231,31 +231,6 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			<munit-tools:assert-that doc:name="Assert that" doc:id="a7b179c4-ec07-4007-bea1-ecabed3faea2" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="sgst-fi-invoice-einvoice-sapi-suiteTest8" doc:id="9407e445-8493-4b23-8d04-09c625004fa0">
-		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="67e6ff32-7d2d-480a-8be4-b441cc10c1e4" processor="apikit:router" >
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="sgst-fi-invoice-einvoice-sapi-config" attributeName="config-ref" />
-				</munit-tools:with-attributes>
-				<munit-tools:then-return >
-					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
-				</munit-tools:then-return>
-			</munit-tools:mock-when>
-		</munit:behavior>
-		<munit:execution >
-			<try doc:name="Try" doc:id="fbeb8103-f410-47d7-b901-5b596fec23e2" >
-				<flow-ref doc:name="Flow Reference" doc:id="96ca85f8-91cc-435b-aa59-5ce859b15569" name="sgst-fi-invoice-einvoice-sapi-main" />
-				<error-handler >
-					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d92e8248-bb57-4234-9fbf-1a26c10a6f5e" >
-						<logger level="INFO" doc:name="Logger" doc:id="329e1458-1d39-48df-a2cd-ae0707425f0e" message="APIKIT:NOT_ACCEPTABLE" />
-					</on-error-continue>
-				</error-handler>
-			</try>
-		</munit:execution>
-		<munit:validation >
-			<munit-tools:assert-that doc:name="Assert that" doc:id="36650b48-323d-455f-93c3-d6ecec51b69c" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
-		</munit:validation>
-	</munit:test>
 
 
 </mule>

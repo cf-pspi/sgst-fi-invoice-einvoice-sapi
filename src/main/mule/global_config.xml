@@ -37,7 +37,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 		<http:request-connection protocol="HTTPS" host="api-uat.einvoice.fpt.com.vn" />
 	</http:request-config>
 	<error-handler name="global-exception-strategy" doc:id="8deac547-b233-440f-891b-b484ba7b5256" >
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="de2addbd-1280-4815-be8c-1a3d18041e55" type="APIKIT:BAD_REQUEST,HTTP:BAD_REQUEST">
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="de2addbd-1280-4815-be8c-1a3d18041e55" type="APIKIT:BAD_REQUEST">
 			<ee:transform doc:name="Transform Message" doc:id="e487ba9c-e9f1-48a1-8e60-5af8886cadec">
 				<ee:message>
 					<ee:set-payload resource="dwl/errorBadRequest.dwl" />
@@ -109,7 +109,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 			<json-logger:logger doc:name="Logger" doc:id="d74ad906-ae4f-482f-8bf3-0379d748a626" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
 		
 </on-error-propagate>
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a955a938-c103-4611-a4d3-f9fa2d4dc00c" type="MULE:EXPRESSION,HTTP:INTERNAL_SERVER_ERROR">
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a955a938-c103-4611-a4d3-f9fa2d4dc00c" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:INTERNAL_SERVER_ERROR, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SECURITY, HTTP:SERVICE_UNAVAILABLE, HTTP:TIMEOUT, HTTP:TOO_MANY_REQUESTS, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE, SFTP:ACCESS_DENIED, SFTP:CONNECTIVITY, SFTP:FILE_ALREADY_EXISTS, SFTP:FILE_LOCK, SFTP:ILLEGAL_CONTENT, SFTP:ILLEGAL_PATH, SFTP:RETRY_EXHAUSTED">
 			<ee:transform doc:name="Transform Message" doc:id="b773176b-290f-4b3f-a5c0-826c26a75901" >
 				<ee:message >
 					<ee:set-payload resource="dwl/errorExpression.dwl" />
@@ -118,8 +118,12 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
+			<async doc:name="Async1" doc:id="bb7a2d62-4d86-43c2-80c4-a8fa2080160f">
+				<sftp:write doc:name="Write" doc:id="d6ebf249-9139-4423-bc61-965a9fdd1eea" config-ref="SFTP_Config" path='#["/inbound/SAP/eInvoice/" ++ vars.correlationID ++ "_From_einvoice.json"]' />
+			</async>
 			<json-logger:logger doc:name="Logger" doc:id="e7fbd50e-d046-49d8-b8b7-09007f6bcb15" config-ref="JSON_Logger_Config" message="Exception Event" tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.correlationID]"/>
 		
+
 </on-error-propagate>
 <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c19d9eff-37ae-4b15-9501-70994cfb528c" type="HTTP:UNAUTHORIZED">
 			<ee:transform doc:name="Transform Message" doc:id="ac9fe746-4b17-488f-a295-cec42786aefa" >

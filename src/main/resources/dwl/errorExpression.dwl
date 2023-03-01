@@ -3,8 +3,8 @@ output application/json
 ---
 {
   "errorCode": 401,
-  "errorMessage": "UNAUTHORIZED Error",
-  "errorType": "UNAUTHORIZED",
+  "errorMessage": error.muleMessage.typedValue,
+  "errorType": error.errorType,
   "correlationID": vars.correlationID,
   "timestamp": (now() as String{format:'yyyy-MM-dd-hh-mm-ss'})
 }

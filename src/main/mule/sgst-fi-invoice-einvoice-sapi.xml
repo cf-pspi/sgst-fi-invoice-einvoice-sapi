@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
-http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
     <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3101a8a4-1225-4b28-a522-c79f5adeb832">
-		<http:request-connection protocol="HTTPS"/>
-	</http:request-config>
-	<flow name="sgst-fi-invoice-einvoice-sapi-main" doc:id="cc7649d9-e5dd-445d-a3f4-15402d528205">
+        <http:request-connection protocol="HTTPS" />
+    </http:request-config>
+    <sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="db6a5044-bd04-4dd8-839d-f5173db76083">
+        <sftp:connection host="10.86.48.62" username="mule2Spana" password="3Vn13MbC4L4dxMSd" />
+    </sftp:config>
+    <flow name="sgst-fi-invoice-einvoice-sapi-main" doc:id="cc7649d9-e5dd-445d-a3f4-15402d528205">
         <http:listener path="/api/v1/*" config-ref="sgst-fi-invoice-einvoice-sapi-httpListenerConfig">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -14,26 +16,26 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
-        <set-variable value="#[attributes.headers.correlationID default uuid()]" doc:name="set-transaction-id" doc:id="a8867806-8151-4044-a8cc-5f01bf4727c1" variableName="correlationID"/>
-		<apikit:router config-ref="sgst-fi-invoice-einvoice-sapi-config"/>
-		<error-handler ref="global-exception-strategy" />
+        <set-variable value="#[attributes.headers.correlationID default uuid()]" doc:name="set-transaction-id" doc:id="a8867806-8151-4044-a8cc-5f01bf4727c1" variableName="correlationID" />
+        <apikit:router config-ref="sgst-fi-invoice-einvoice-sapi-config" />
+        <error-handler ref="global-exception-strategy" />
     </flow>
     <flow name="delete:\delete-invoice:sgst-fi-invoice-einvoice-sapi-config">
-        <json-logger:logger doc:name="entry-logger" doc:id="a88af61f-b02d-4d55-9c8e-5af86aa263e5" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request."/>
-		<json-logger:logger doc:name="end-logger" doc:id="96af0085-3c73-4dba-8e8a-1f1201fe2c28" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END"/>
+        <json-logger:logger doc:name="entry-logger" doc:id="a88af61f-b02d-4d55-9c8e-5af86aa263e5" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request." />
+        <json-logger:logger doc:name="end-logger" doc:id="96af0085-3c73-4dba-8e8a-1f1201fe2c28" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END" />
     </flow>
     <flow name="get:\cancel-invoice:sgst-fi-invoice-einvoice-sapi-config" doc:id="c399ba1f-092d-4539-815a-b543a091a717">
-        <json-logger:logger doc:name="entry-logger" doc:id="6315c7bb-9697-4c0a-960b-5c2865e4ccc1" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request."/>
-		<http:request method="GET" doc:name="Request to cancel invoice" doc:id="81594e33-3bd2-410c-9eb1-05e740a3faf1" config-ref="HTTP_Request_Einvoice" path="/cancel-invoice">
-			<http:query-params ><![CDATA[#[output application/java
+        <json-logger:logger doc:name="entry-logger" doc:id="6315c7bb-9697-4c0a-960b-5c2865e4ccc1" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request." />
+        <http:request method="GET" doc:name="Request to cancel invoice" doc:id="81594e33-3bd2-410c-9eb1-05e740a3faf1" config-ref="HTTP_Request_Einvoice" path="/cancel-invoice">
+            <http:query-params><![CDATA[#[output application/java
 ---
 {
 	sid : attributes.queryParams.sid
 }]]]></http:query-params>
-		</http:request>
-		<ee:transform doc:name="final-response" doc:id="b3555ba1-6446-4abc-a333-c656248ff70f" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="final-response" doc:id="b3555ba1-6446-4abc-a333-c656248ff70f">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -41,26 +43,28 @@ output application/json
 	"statusMessage": "Cancel of invoice is success",
 	"transactionID": vars.inputRequest.correlationID
 	}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<json-logger:logger doc:name="end-logger" doc:id="b1cb2db3-09d3-4b10-b0e4-cafcce0b2042" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END"/>
+            </ee:message>
+        </ee:transform>
+        <json-logger:logger doc:name="end-logger" doc:id="b1cb2db3-09d3-4b10-b0e4-cafcce0b2042" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END" />
     </flow>
     <flow name="post:\create-invoice:application\json:sgst-fi-invoice-einvoice-sapi-config" doc:id="079720c7-fe49-40a4-acb4-ce068f7225f1">
-        <json-logger:logger doc:name="entry-logger" doc:id="8383c4e0-46e7-45bd-a1ee-584068858525" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request."/>
-		<http:request method="POST" doc:name="Request to Einvoice Api" doc:id="34d2a829-c94f-4aef-88fd-c529fed42d91" config-ref="HTTP_Request_Einvoice" path="/create-invoice">
-		</http:request>
-		<ee:transform doc:name="final-response" doc:id="691312ec-1954-4fb5-84c5-8086669e862d" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        <json-logger:logger doc:name="entry-logger" doc:id="8383c4e0-46e7-45bd-a1ee-584068858525" config-ref="JSON_Logger_Config" message="API START:INIT : Received API request." />
+        <async doc:name="Async" doc:id="24391331-6275-460d-91fd-5ad9eaaf8ae9">
+            <sftp:write doc:name="Write" doc:id="86be3172-bd34-452c-b6c5-3bf1aed2f9b4" config-ref="SFTP_Config" path="#[&quot;/inbound/SAP/eInvoice/&quot; ++ vars.correlationID ++ &quot;_To_einvoice.json&quot;]" />
+        </async>
+        <http:request method="POST" doc:name="Request to Einvoice Api" doc:id="34d2a829-c94f-4aef-88fd-c529fed42d91" config-ref="HTTP_Request_Einvoice" path="/create-invoice" />
+        <ee:transform doc:name="final-response" doc:id="691312ec-1954-4fb5-84c5-8086669e862d">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	"statusCode": 200,
 	"statusMessage": "Create Invoice is successfully",
-	"transactionID": vars.inputRequest.correlationID
+	"transactionID": vars.correlationID
 	}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<json-logger:logger doc:name="end-logger" doc:id="becad7e8-ef1d-4802-8264-6c4f7e3e7266" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END"/>
+            </ee:message>
+        </ee:transform>
+        <json-logger:logger doc:name="end-logger" doc:id="becad7e8-ef1d-4802-8264-6c4f7e3e7266" config-ref="JSON_Logger_Config" message="API END:COMPLETE : End API request." tracePoint="END" />
     </flow>
 </mule>

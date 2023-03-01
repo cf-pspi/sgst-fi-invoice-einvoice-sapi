@@ -11,7 +11,7 @@
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>sgst-fi-invoice-einvoice-sapi-1.0.0-mule-application</name>
+	<name>sgst-fi-invoice-einvoice-sapi</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
